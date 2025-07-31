@@ -1,0 +1,385 @@
+<section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+
+          <div class="content has-text-justified">
+            <section id="sec:GAT">
+              <h2 class="title is-3">Graph Attention Network</h2>
+              <p>
+                GAT introduces masked multi-head self-attention to graphs by allowing each node to attend only to its
+                immediate neighbors. This avoids unnecessary computation and preserves graph structure.
+              </p>
+
+              <p>
+                Given initial entity embeddings
+                <span class="katex">\( \mathbf{E} = \{\overrightarrow{e_1}, ..., \overrightarrow{e_{N_e}} \} \)</span>,
+                the model linearly transforms them and computes attention scores only among first-order neighbors:
+              </p>
+
+              <div class="katex-block">
+                \[
+                e_{ij} = \text{LeakyReLU} \left( \vec{a}^T [\mathbf{W} \overrightarrow{e_i} || \mathbf{W}
+                \overrightarrow{e_j}] \right)
+                \]
+              </div>
+
+              <p>
+                These raw scores are normalized with softmax:
+              </p>
+
+              <div class="katex-block">
+                \[
+                \alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}_i} \exp(e_{ik})}
+                \]
+              </div>
+
+              <p>
+                Finally, embeddings are updated by aggregating neighbors’ representations:
+              </p>
+
+              <div class="katex-block">
+                \[
+                \overrightarrow{e'_i} = \sigma\left( \sum_{j \in \mathcal{N}_i} \alpha_{ij} \mathbf{W}
+                \overrightarrow{e_j} \right)
+                \]
+              </div>
+
+              <p>
+                Multi-head attention further improves stability by either concatenating or averaging the outputs of
+                multiple attention heads. GAT is especially effective for graph-structured data without requiring matrix
+                inversion or dense adjacency.
+              </p>
+            </section>
+
+          </div>
+          <div>
+
+            <section id="kbgat-model">
+              <h2 class="title is-3">KBGAT Model</h2>
+
+              <p>
+                In knowledge graphs, entities often play multiple roles depending on their relations. To capture this
+                context, the <strong>KBGAT</strong> model extends GAT by integrating both
+                relation
+                and neighboring features into the attention mechanism.
+              </p>
+
+              <p>
+                KBGAT follows an <em>encoder-decoder</em> framework:
+                entity embeddings are initialized using <strong>TransE</strong>,
+                enhanced via <strong>GAT-based encoder</strong>,
+                and scored through a <strong>ConvKB decoder</strong>:
+              </p>
+
+              <div class="katex-block">
+                \[
+                \text{entity} \xrightarrow{\text{TransE}} \vec{e}_{\text{TransE}} \xrightarrow{\text{GAT}}
+                \vec{e}_{\text{KBGAT}} \xrightarrow{\text{ConvKB}} \text{score}
+                \]
+              </div>
+
+              <p>
+                The initial embeddings are learned using the TransE principle:
+              </p>
+
+              <div class="katex-block">
+                \[
+                \vec{h} + \vec{r} \approx \vec{t}
+                \]
+              </div>
+
+              <p>
+                where <span class="katex">\( \vec{h} \)</span> and <span class="katex">\( \vec{t} \)</span> are the head
+                and tail entity embeddings, and <span class="katex">\( \vec{r} \)</span> is the relation vector. This
+                forms the basis for encoding semantic consistency across triples.
+              </p>
+            </section>
+
+            <section id="kbgat-encoder-decoder">
+              <h2>KBGAT Encoder and ConvKB Decoder</h2>
+
+              <p>
+                The <strong>KBGAT encoder</strong> extends GAT by combining entity and relation features.
+                It transforms initial embeddings using multi-head attention across n-hop neighbors and relation paths:
+              </p>
+
+              <div class="katex-block">
+                \[
+                \overrightarrow{t_{ijk}} = \mathbf{W}_1 [\vec{e}_i || \vec{e}_j || \vec{r}_k], \quad
+                \alpha_{ijk} = \text{softmax}_{jk}(\text{LeakyReLU}(\mathbf{W}_2 \vec{t}_{ijk}))
+                \]
+              </div>
+
+              <p>
+                These attention-weighted triple vectors are aggregated to update entity embeddings.
+                A residual connection preserves initial embeddings:
+              </p>
+
+              <div class="katex-block">
+                \[
+                \mathbf{H} = \mathbf{W}^E \mathbf{E} + \mathbf{E''}
+                \]
+              </div>
+
+              <p>
+                In the decoder, <strong>ConvKB</strong> uses convolutional filters to extract patterns from each triple:
+              </p>
+
+              \[
+              f(t_{ijk}) = \left( \mathop{\Big\|}_{m=1}^{\Omega} \mathrm{ReLU}\left([\vec{e}_i, \vec{r}_k, \vec{e}_j] *
+              \omega^m\right) \right) \cdot \mathbf{W}
+              \]
+
+              <p>
+                The model is trained using a soft-margin loss function:
+              </p>
+
+              \[
+              \mathcal{L} = \sum_{t^k_{ij} \in \{S \cup S'\}} \log\left(1 + \exp\left(l_{t^k_{ij}} \cdot
+              f(t^k_{ij})\right)\right) + \frac{\lambda}{2} \left\lVert \mathbf{W} \right\rVert_2^2
+              \]
+
+              where the label \( l_{t^k_{ij}} \) is defined as:
+
+              \[
+              l_{t^k_{ij}} =
+              \begin{cases}
+              1 & \text{if } t^k_{ij} \in S \\
+              -1 & \text{if } t^k_{ij} \in S'
+              \end{cases}
+              \]
+
+              The final output of the ConvKB model is the ranking score \( f(t^k_{ij}) \) for each triple prediction.
+
+            </section>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="hero is-small">
+    <div class="hero-body">
+      <div class="column is-centered has-text-centered">
+        <h3 class="title is-4">Experiments on Wordnet 18 and FB15k Dataset</h3>
+        <!-- <p><b> (The left video is the motion prompt, and the right video shows the results.)</b></p> -->
+
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="column is-centered has-text-centered">
+            <img src="static/figures/dataset.png" alt="dataset" width="600" />
+          </div>
+
+          <div class="column is-centered has-text-centered">
+            <img src="static/figures/WNStats.png" alt="WN Stats" width="1000" />
+          </div>
+
+          <div class="column is-centered has-text-centered">
+            <img src="static/figures/WN18/WN18.png" alt="WN18" width="900" />
+
+            <!-- <video poster="" id="tree" muted controls width=250>
+              <source src="static/figures/motion_prompt/motion_prompt.mp4" type="video/mp4">
+            </video> -->
+            <!-- <video poster="" id="tree" controls width=300>
+              <source src="static/figures/motion_prompt/neutral.mp4" type="video/mp4">
+            </video>
+            <p><b>Motion Prompt: “<font color="red">high right hand</font> and <font color="red">low left hand</font>
+                .”</b></p>
+            </br> -->
+          </div>
+
+          <div class="column is-centered has-text-centered">
+            <!-- <video poster="" id="tree" muted controls width=250>
+              <source src="static/figures/motion_prompt/sit_prompt.mp4" type="video/mp4">
+            </video> -->
+            <img src="static/figures/FB15k/FB15k.png" alt="cars peace" width="900" />
+            <!-- <video poster="" id="tree" controls width=300>
+              <source src="static/figures/motion_prompt/sit.mp4" type="video/mp4">
+            </video>
+            <p><b>Motion Prompt: “<font color="red">sitting</font>.”</b></p>
+            </br> -->
+          </div>
+
+        </div>
+      </div>
+  </section>
+
+
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Research Areas in Knowledge Graphs</h2>
+          <div class="content has-text-justified">
+            <p>
+              Research on knowledge graphs spans four main areas: knowledge representation learning, knowledge
+              acquisition, temporal knowledge graphs, and knowledge-aware applications.
+
+              Knowledge representation learning focuses on embedding entities and relations, exploring representation
+              space, scoring functions, encoding models, and auxiliary information. Knowledge acquisition addresses
+              graph completion, relation extraction, and entity discovery using embedding, reasoning, and learning-based
+              methods. Temporal knowledge graphs model evolving facts over time. Knowledge-aware applications integrate
+              KGs into tasks like question answering, recommendation, and language understanding.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+    </div>
+  </section>
+
+
+
+
+
+  <section class="hero is-small">
+    <div class="hero-body">
+      <div class="container">
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="column is-centered has-text-centered">
+            <img src="static/figures/Taxonomy.png" alt="Taxonomy" width="1200" />
+            <!-- <video poster="" id="tree" controls width=500>
+              <source src="static/figures/sub_body/video_01.mp4" type="video/mp4">
+            </video> -->
+          </div>
+          <div class="column is-centered has-text-centered">
+            <img src="static/figures/GraphEmbeddingTechniques.png" alt="GraphEmbeddingTechniques" width="1200" />
+          </div>
+          <div class="column is-centered has-text-centered">
+            <img src="static/figures/GraphEmbedding.png" alt="GraphEmbedding" width="800" />
+          </div>
+          <!-- <div class="column is-centered has-text-centered">
+            <img src="static/figures/sub_body/3.png" alt="Taxonomy" width="250" />
+            <video poster="" id="tree" controls width=500>
+              <source src="static/figures/sub_body/video_03.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-centered has-text-centered">
+            <img src="static/figures/sub_body/4.png" alt="cars peace" width="250" />
+            <video poster="" id="tree" controls width=500>
+              <source src="static/figures/sub_body/video_04.mp4" type="video/mp4">
+            </video>
+          </div> -->
+        </div>
+      </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <!--         <h2 class="title is-3">How does it work?</h2> -->
+          <div class="content has-text-justified">
+            <section id="graph-embedding">
+              <!-- <h2>Graph Embedding Problem Settings</h2> -->
+
+              <p>
+                Graph embedding methods differ based on the input graph type:
+                homogeneous, heterogeneous, with auxiliary info, or constructed from non-relational data.
+                While input is dataset-defined, the output is task-specific.
+              </p>
+
+              <p>
+                The main embedding output types include:
+                <strong>Node Embedding</strong> (individual node vectors for node-level tasks),
+                <strong>Edge Embedding</strong> (vectors for node pairs or relations),
+                <strong>Hybrid Embedding</strong> (combinations like substructures), and
+                <strong>Whole-Graph Embedding</strong> (one vector per graph for tasks like classification).
+              </p>
+
+              <p>
+                Node embeddings preserve neighborhood similarity (e.g., first-/second-order proximity).
+                Edge embeddings are crucial in knowledge graphs or link prediction.
+                Hybrid embeddings integrate multiple structural levels.
+                Whole-graph embeddings require hierarchical aggregation and are suited for small graphs (e.g.,
+                molecules).
+              </p>
+
+              <div class="column is-centered has-text-centered">
+                <img src="static/figures/EmbeddingMethods.png" alt="Embedding Methods" width="1000" />
+              </div>
+            </section>
+          </div>
+        </div>
+        <!--/ Abstract. -->
+      </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+
+
+  <section class="hero is-small">
+    <div class="hero-body">
+      <div class="column is-centered has-text-centered">
+        <h3 class="title is-4">Baseline TransE Embedding</h3>
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="column is-centered has-text-centered">
+            <!-- <p><b>Text Prompt: “the person is <font color="red">angry</font>.”</b></p> -->
+            <img src="static/figures/transE/TransE_Embedding.png" alt="TransE Embedding" width="900" />
+            <!-- <video poster="" id="tree" width=300>
+              <source src="static/figures/text_prompt/angry.mp4" type="video/mp4">
+            </video> -->
+          </div>
+          <div class="column is-centered has-text-centered">
+            <!-- <p><b> Text Prompt: “standing like a <font color="red">boxer</font>.”</b></p> -->
+
+            <!-- <video poster="" id="tree" controls width=300>
+              <source src="static/figures/text_prompt/boxer.mp4" type="video/mp4">
+            </video> -->
+            <img src="static/figures/transE/algorithm.png" alt="algorithm" width="500" />
+          </div>
+          <div class="column is-centered has-text-centered">
+            <p>Illustration of embedding vectors in the TransE model</p>
+            <img src="static/figures/TranE.png" alt="TranE" width="650" />
+          </div>
+        </div>
+      </div>
+  </section>
