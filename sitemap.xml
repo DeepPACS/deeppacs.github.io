@@ -3,53 +3,23 @@
     xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
     <url>
-        <loc>https://graphattentionnetwork.github.io</loc>
+        <loc>https://deeppacs.github.io</loc>
         <lastmod>2025-07-30</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
 
     <url>
-        <loc>https://graphattentionnetwork.github.io</loc>
+        <loc>https://deeppacs.github.io</loc>
         <image:image>
-            <image:loc>https://graphattentionnetwork.github.io/static/figures/GCAT.png</image:loc>
-            <image:title>GCAT</image:title>
+            <image:loc>https://deeppacs.github.io/static/figures/DeepPACS.png</image:loc>
+            <image:title>DeepPACS</image:title>
         </image:image>
 
         <image:image>
-            <image:loc>https://graphattentionnetwork.github.io/static/figures/KnowledgeGraphSample.png</image:loc>
-            <image:title>Knowledge Graph Sample</image:title>
+            <image:loc>https://deeppacs.github.io/static/figures/DeepPACS.CLIP.png</image:loc>
+            <image:title>DeepPACS.CLIP</image:title>
         </image:image>
 
-        <image:image>
-            <image:loc>https://graphattentionnetwork.github.io/static/figures/EmbeddingMethods.png</image:loc>
-            <image:title>EmbeddingMethods</image:title>
-        </image:image>
-
-        <image:image>
-            <image:loc>https://graphattentionnetwork.github.io/static/figures/transE/TransE_Embedding.png</image:loc>
-            <image:title>TransE Embedding</image:title>
-        </image:image>
-
-        <image:image>
-            <image:loc>https://graphattentionnetwork.github.io/static/figures/GCAT.png</image:loc>
-            <image:title>GCAT</image:title>
-        </image:image>
-
-
-        <image:image>
-            <image:loc>https://graphattentionnetwork.github.io/static/figures/Taxonomy.png</image:loc>
-            <image:title>Taxonomy</image:title>
-        </image:image>
-
-        <image:image>
-            <image:loc>https://graphattentionnetwork.github.io/static/figures/GraphEmbedding.png</image:loc>
-            <image:title>GraphEmbedding</image:title>
-        </image:image>
-
-        <image:image>
-            <image:loc>https://graphattentionnetwork.github.io/static/figures/GraphEmbeddingTechniques.png</image:loc>
-            <image:title>GraphEmbeddingTechniques</image:title>
-        </image:image>
     </url>
 </urlset>
